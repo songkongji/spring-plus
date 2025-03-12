@@ -58,6 +58,15 @@ public class TodoService {
     public Page<TodoResponse> getTodos(int page, int size, String weather, String start, String end) {
         Pageable pageable = PageRequest.of(page - 1, size);
 
+        if (weather != null && start != null && end != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            LocalDateTime startDate = LocalDateTime.parse(start, formatter);
+            LocalDateTime endDate = LocalDateTime.parse(end, formatter); //string 타입으로 적은 시작날짜와 끝날짜 파싱
+
+            Page<Todo> allByWeatherAndModifiedAt = todoRepository.findAllByWeatherAndModifiedAt(pageable, weather, startDate, endDate);
+            return todoResponsePage(allByWeatherAndModifiedAt);
+        }
+
         if(weather != null) {
             String weatherPattern = "%" + weather + "%";    //jpql 미사용시 필요함. 대소문자 구분 없이 부분 일치하는 검색을 할 수 있도록 와일드 카드 사용
 
@@ -68,7 +77,7 @@ public class TodoService {
         if (start != null && end != null) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");   
             LocalDateTime startDate = LocalDateTime.parse(start, formatter);
-            LocalDateTime endDate = LocalDateTime.parse(end, formatter); //string 타입으로 적은 시작날짜 끝날짜 파싱
+            LocalDateTime endDate = LocalDateTime.parse(end, formatter); //string 타입으로 적은 시작날짜와 끝날짜 파싱
 
             Page<Todo> modifiedAtTodos = todoRepository.findAllByModifiedAtBetween(pageable, startDate, endDate);   //적은 기간 사이의 할일들이 나옴
             return todoResponsePage(modifiedAtTodos);
