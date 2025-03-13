@@ -52,6 +52,7 @@ public class SecurityConfig {
                         .requestMatchers(request -> request.getRequestURI().startsWith("/auth")).permitAll()
                         .requestMatchers("/test").hasAuthority(UserRole.Authority.ADMIN)
                         .requestMatchers("/open").permitAll()
+                        .requestMatchers("/error").permitAll()  //에러가 무조건 403으로만 반환되는걸 해결하는 코드
                         .anyRequest().authenticated()   //SecurityContext에 AbstractAuthenticationToken이 set이 되어 있다면 통과를 시키겠단 의미이다.
                 )
                 .build();
