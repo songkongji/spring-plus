@@ -61,7 +61,7 @@ public class TodoService {
         Pageable pageable = PageRequest.of(page - 1, size);
 
         if (weather != null && start != null && end != null) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
             LocalDateTime startDate = LocalDateTime.parse(start, formatter);
             LocalDateTime endDate = LocalDateTime.parse(end, formatter); //string 타입으로 적은 시작날짜와 끝날짜 파싱
 
@@ -77,7 +77,7 @@ public class TodoService {
         }
 
         if (start != null && end != null) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");   
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
             LocalDateTime startDate = LocalDateTime.parse(start, formatter);
             LocalDateTime endDate = LocalDateTime.parse(end, formatter); //string 타입으로 적은 시작날짜와 끝날짜 파싱
 

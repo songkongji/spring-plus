@@ -28,6 +28,6 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
     Page<Todo> findAllByModifiedAtBetween(Pageable pageable, LocalDateTime startDate, LocalDateTime endDate);
 
     @Query("SELECT T FROM Todo T WHERE LOWER(T.weather) LIKE LOWER(CONCAT('%', :weather, '%')) AND" +
-            " T.modifiedAt BETWEEN :startDate AND :endDate")
+            " FORMATDATETIME(T.modifiedAt, 'yyyy-MM-dd HH:mm') BETWEEN :startDate AND :endDate")
     Page<Todo> findAllByWeatherAndModifiedAt(Pageable pageable, String weather, LocalDateTime startDate, LocalDateTime endDate);
 }
