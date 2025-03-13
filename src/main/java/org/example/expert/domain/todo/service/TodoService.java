@@ -1,6 +1,7 @@
 package org.example.expert.domain.todo.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.expert.client.WeatherClient;
 import org.example.expert.domain.common.dto.AuthUser;
 import org.example.expert.domain.common.exception.InvalidRequestException;
@@ -28,6 +29,7 @@ import java.time.format.DateTimeFormatter;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class TodoService {
 
     private final TodoRepository todoRepository;
@@ -61,27 +63,20 @@ public class TodoService {
         Pageable pageable = PageRequest.of(page - 1, size);
 
         if (weather != null && start != null && end != null) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-            LocalDateTime startDate = LocalDateTime.parse(start, formatter);
-            LocalDateTime endDate = LocalDateTime.parse(end, formatter); //string 타입으로 적은 시작날짜와 끝날짜 파싱
-
-            Page<Todo> allByWeatherAndModifiedAt = todoRepository.findAllByWeatherAndModifiedAt(pageable, weather, startDate, endDate);
+            LocalDateTime[] startAndEndDates = validateStartAndEndDates(start, end);
+            Page<Todo> allByWeatherAndModifiedAt = todoRepository.findAllByWeatherAndModifiedAt(pageable, weather, startAndEndDates[0], startAndEndDates[1]);
             return todoResponsePage(allByWeatherAndModifiedAt);
         }
 
         if(weather != null) {
             String weatherPattern = "%" + weather + "%";    //jpql 미사용시 필요함. 대소문자 구분 없이 부분 일치하는 검색을 할 수 있도록 와일드 카드 사용
-
             Page<Todo> weatherTodos = todoRepository.findAllByWeatherLikeIgnoreCase(pageable, weatherPattern);
             return todoResponsePage(weatherTodos);
         }
 
         if (start != null && end != null) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-            LocalDateTime startDate = LocalDateTime.parse(start, formatter);
-            LocalDateTime endDate = LocalDateTime.parse(end, formatter); //string 타입으로 적은 시작날짜와 끝날짜 파싱
-
-            Page<Todo> modifiedAtTodos = todoRepository.findAllByModifiedAtBetween(pageable, startDate, endDate);   //적은 기간 사이의 할일들이 나옴
+            LocalDateTime[] startAndEndDates = validateStartAndEndDates(start, end);
+            Page<Todo> modifiedAtTodos = todoRepository.findAllByModifiedAtBetween(pageable, startAndEndDates[0], startAndEndDates[1]);   //적은 기간 사이의 할일들이 나옴
             return todoResponsePage(modifiedAtTodos);
         }
 
@@ -119,5 +114,20 @@ public class TodoService {
                 todo.getCreatedAt(),
                 todo.getModifiedAt()
         ));
+    }
+
+    private LocalDateTime[] validateStartAndEndDates(String start, String end) {    //시간 검증 메소드. start 혹은 end를 현재보다 더 뒤로 적으면 오류 발생
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime startDate = LocalDateTime.parse(start, formatter);
+        LocalDateTime endDate = LocalDateTime.parse(end, formatter); //string 타입으로 적은 시작날짜와 끝날짜 파싱
+        String nowWithoutSecond = LocalDateTime.now().format(formatter);
+        LocalDateTime now = LocalDateTime.parse(nowWithoutSecond, formatter);
+
+        if (startDate.isAfter(now) || endDate.isAfter(now)) {
+            log.error("Invalid time input: now is {}, startDate is {}, endDate is {}", now, startDate, endDate);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "시간을 잘못 입력하셨습니다.");
+        }
+
+        return new LocalDateTime[] {startDate, endDate};
     }
 }

@@ -21,13 +21,13 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
             "WHERE t.id = :todoId")
     Optional<Todo> findByIdWithUser(@Param("todoId") Long todoId);
 
-    @Query("SELECT T FROM Todo T WHERE LOWER(T.weather) LIKE LOWER(CONCAT('%', :weather, '%'))")
+    @Query("SELECT T FROM Todo T LEFT JOIN FETCH T.user WHERE LOWER(T.weather) LIKE LOWER(CONCAT('%', :weather, '%'))")
     Page<Todo> findAllByWeatherLikeIgnoreCase(Pageable pageable, String weather);
 
-    @Query("SELECT t FROM Todo t WHERE t.modifiedAt BETWEEN :startDate AND :endDate")
+    @Query("SELECT t FROM Todo t LEFT JOIN FETCH t.user WHERE t.modifiedAt BETWEEN :startDate AND :endDate")
     Page<Todo> findAllByModifiedAtBetween(Pageable pageable, LocalDateTime startDate, LocalDateTime endDate);
 
-    @Query("SELECT T FROM Todo T WHERE LOWER(T.weather) LIKE LOWER(CONCAT('%', :weather, '%')) AND" +
+    @Query("SELECT T FROM Todo T LEFT JOIN FETCH T.user WHERE LOWER(T.weather) LIKE LOWER(CONCAT('%', :weather, '%')) AND" +
             " FORMATDATETIME(T.modifiedAt, 'yyyy-MM-dd HH:mm') BETWEEN :startDate AND :endDate")
     Page<Todo> findAllByWeatherAndModifiedAt(Pageable pageable, String weather, LocalDateTime startDate, LocalDateTime endDate);
 }
