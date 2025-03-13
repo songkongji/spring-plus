@@ -7,6 +7,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @Getter
 @MappedSuperclass
@@ -22,4 +23,15 @@ public abstract class Timestamped {
     @Column
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime modifiedAt;
+
+    @PrePersist
+    public void onPrePersist() {
+        this.createdAt = createdAt.truncatedTo(ChronoUnit.SECONDS);
+        this.modifiedAt = modifiedAt.truncatedTo(ChronoUnit.SECONDS);
+    }
+
+    @PreUpdate
+    public void onPreUpdate() {
+        this.modifiedAt = modifiedAt.truncatedTo(ChronoUnit.SECONDS);
+    }
 }
