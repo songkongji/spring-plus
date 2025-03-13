@@ -7,5 +7,5 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Auth {
+public @interface Auth {    //현재 스프링시큐리티를 사용하게 되어 사용하지 않음.
 }

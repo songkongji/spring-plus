@@ -37,7 +37,12 @@ public class User extends Timestamped {
     }
 
     public static User fromAuthUser(AuthUser authUser) {
-        return new User(authUser.getId(), authUser.getEmail(), authUser.getUserRole(), authUser.getNickname());
+        UserRole userRole = authUser.getAuthorities().stream()
+                .map(authority -> UserRole.valueOf(authority.getAuthority()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Invalid user role"));
+
+        return new User(authUser.getId(), authUser.getEmail(), userRole, authUser.getNickname());
     }
 
     public void changePassword(String password) {
