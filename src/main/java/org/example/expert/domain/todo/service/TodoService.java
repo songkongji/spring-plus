@@ -69,11 +69,15 @@ public class TodoService {
             LocalDateTime[] startAndEndDates = validateStartAndEndDates(start, end);
             Page<Todo> allByWeatherAndModifiedAt = todoRepository.findAllByWeatherAndModifiedAt(pageable, weather, startAndEndDates[0], startAndEndDates[1]);
             return todoResponsePage(allByWeatherAndModifiedAt);
-        } else if(weather != null) {
+        }
+
+        if(weather != null) {
             String weatherPattern = "%" + weather + "%";    //jpql 미사용시 필요함. 대소문자 구분 없이 부분 일치하는 검색을 할 수 있도록 와일드 카드 사용
             Page<Todo> weatherTodos = todoRepository.findAllByWeatherLikeIgnoreCase(pageable, weatherPattern);
             return todoResponsePage(weatherTodos);
-        } else if (start != null) { //end != null은 위의 예외 처리 때문에 없어도 됌
+        }
+
+        if (start != null) { //end != null은 위의 예외 처리 때문에 없어도 됌
             LocalDateTime[] startAndEndDates = validateStartAndEndDates(start, end);
             Page<Todo> modifiedAtTodos = todoRepository.findAllByModifiedAtBetween(pageable, startAndEndDates[0], startAndEndDates[1]);   //적은 기간 사이의 할일들이 나옴
             return todoResponsePage(modifiedAtTodos);
@@ -136,12 +140,18 @@ public class TodoService {
 
         if ((start != null && end == null) || (start == null && end != null)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "start와 end는 같이 쓰여야 합니다.");
-        } else if (start != null && title == null && nickname == null) {    //생성일 범위 검색
+        }
+
+        if (start != null && title == null && nickname == null) {    //생성일 범위 검색
             LocalDateTime[] startAndEndDates = validateStartAndEndDates(start, end);
             return todoRepositoryImpl.findAllByCreatedAtDesc(pageable, startAndEndDates[0], startAndEndDates[1]);
-        } else if (nickname != null && title == null && start == null) { //담장자 닉네임 검색
+        }
+
+        if (nickname != null && title == null && start == null) { //담장자 닉네임 검색
             return todoRepositoryImpl.findAllByNickname(pageable, nickname);
-        } else if (title == null || nickname != null || start != null) {    //조건을 여러개 넣으면 에러처리
+        }
+
+        if (title == null || nickname != null || start != null) {    //조건을 여러개 넣으면 에러처리
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "혼합 검색 혹은 아무런 것도 적지 않는 것은 불가능합니다.");
         }
 
