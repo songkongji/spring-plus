@@ -7,6 +7,7 @@ import org.example.expert.domain.common.dto.AuthUser;
 import org.example.expert.domain.common.exception.InvalidRequestException;
 import org.example.expert.domain.todo.dto.request.TodoSaveRequest;
 import org.example.expert.domain.todo.dto.response.TodoResponse;
+import org.example.expert.domain.todo.dto.response.TodoQueryDSLDTO;
 import org.example.expert.domain.todo.dto.response.TodoSaveResponse;
 import org.example.expert.domain.todo.entity.Todo;
 import org.example.expert.domain.todo.repository.TodoRepository;
@@ -16,13 +17,11 @@ import org.example.expert.domain.user.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -62,19 +61,19 @@ public class TodoService {
     public Page<TodoResponse> getTodos(int page, int size, String weather, String start, String end) {
         Pageable pageable = PageRequest.of(page - 1, size);
 
-        if (weather != null && start != null && end != null) {
+        if ((start != null && end == null) || (start == null && end != null)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "start와 end 날짜는 함께 제공되어야 합니다.");
+        }
+
+        if (weather != null && start != null) {  //end != null은 위의 예외 처리 때문에 없어도 됌
             LocalDateTime[] startAndEndDates = validateStartAndEndDates(start, end);
             Page<Todo> allByWeatherAndModifiedAt = todoRepository.findAllByWeatherAndModifiedAt(pageable, weather, startAndEndDates[0], startAndEndDates[1]);
             return todoResponsePage(allByWeatherAndModifiedAt);
-        }
-
-        if(weather != null) {
+        } else if(weather != null) {
             String weatherPattern = "%" + weather + "%";    //jpql 미사용시 필요함. 대소문자 구분 없이 부분 일치하는 검색을 할 수 있도록 와일드 카드 사용
             Page<Todo> weatherTodos = todoRepository.findAllByWeatherLikeIgnoreCase(pageable, weatherPattern);
             return todoResponsePage(weatherTodos);
-        }
-
-        if (start != null && end != null) {
+        } else if (start != null) { //end != null은 위의 예외 처리 때문에 없어도 됌
             LocalDateTime[] startAndEndDates = validateStartAndEndDates(start, end);
             Page<Todo> modifiedAtTodos = todoRepository.findAllByModifiedAtBetween(pageable, startAndEndDates[0], startAndEndDates[1]);   //적은 기간 사이의 할일들이 나옴
             return todoResponsePage(modifiedAtTodos);
@@ -129,5 +128,12 @@ public class TodoService {
         }
 
         return new LocalDateTime[] {startDate, endDate};
+    }
+
+
+    public Page<TodoQueryDSLDTO> getTodosV2(int page, int size, String title, String start, String end, String nickname) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        String titleWildCard = "%" + title.toLowerCase() + "%";
+        return todoRepositoryImpl.findAllByTitle(pageable, titleWildCard);
     }
 }

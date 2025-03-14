@@ -2,11 +2,10 @@ package org.example.expert.domain.todo.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.expert.client.dto.WeatherDto;
-import org.example.expert.domain.common.annotation.Auth;
 import org.example.expert.domain.common.dto.AuthUser;
 import org.example.expert.domain.todo.dto.request.TodoSaveRequest;
 import org.example.expert.domain.todo.dto.response.TodoResponse;
+import org.example.expert.domain.todo.dto.response.TodoQueryDSLDTO;
 import org.example.expert.domain.todo.dto.response.TodoSaveResponse;
 import org.example.expert.domain.todo.service.TodoService;
 import org.springframework.data.domain.Page;
@@ -43,4 +42,17 @@ public class TodoController {
     public ResponseEntity<TodoResponse> getTodo(@PathVariable long todoId) {
         return ResponseEntity.ok(todoService.getTodo(todoId));
     }
+
+    @GetMapping("/todos-v2")
+    public ResponseEntity<Page<TodoQueryDSLDTO>> getTodosV2(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam (required = false) String title,
+            @RequestParam (required = false) String start,
+            @RequestParam (required = false) String end,
+            @RequestParam (required = false) String nickname
+    ) {
+        return ResponseEntity.ok(todoService.getTodosV2(page, size, title, start, end, nickname));
+    }
+
 }
