@@ -25,13 +25,13 @@ public abstract class Timestamped {
     private LocalDateTime modifiedAt;
 
     @PrePersist
-    public void onPrePersist() {
+    public void onPrePersist() {    //생성시 나노초 저장안하기
         this.createdAt = createdAt.truncatedTo(ChronoUnit.SECONDS);
         this.modifiedAt = modifiedAt.truncatedTo(ChronoUnit.SECONDS);
     }
 
     @PreUpdate
-    public void onPreUpdate() {
+    public void onPreUpdate() { //업뎃시 나노초 저장안하기
         this.modifiedAt = modifiedAt.truncatedTo(ChronoUnit.SECONDS);
     }
 }
