@@ -11,9 +11,11 @@ import java.util.Optional;
 public interface TodoRepositoryCustom {
     Optional<Todo> findByIdWithUser(Long id);
 
-    Page<TodoQueryDSLDTO> findAllByTitle(Pageable pageable, String title);
+//    Page<TodoQueryDSLDTO> findAllByTitle(Pageable pageable, String title);
+//
+//    Page<TodoQueryDSLDTO> findAllByCreatedAtDesc(Pageable pageable, LocalDateTime start, LocalDateTime end);
+//
+//    Page<TodoQueryDSLDTO> findAllByNickname(Pageable pageable, String nickname);
 
-    Page<TodoQueryDSLDTO> findAllByCreatedAtDesc(Pageable pageable, LocalDateTime start, LocalDateTime end);
-
-    Page<TodoQueryDSLDTO> findAllByNickname(Pageable pageable, String nickname);
+    Page<TodoQueryDSLDTO> findAllByTitle(Pageable pageable, String title, String start, String end, String nickname);
 }

@@ -141,20 +141,20 @@ public class TodoService {
         if ((start != null && end == null) || (start == null && end != null)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "start와 end는 같이 쓰여야 합니다.");
         }
+//
+//        if (start != null && title == null && nickname == null) {    //생성일 범위 검색
+//            LocalDateTime[] startAndEndDates = validateStartAndEndDates(start, end);
+//            return todoRepositoryImpl.findAllByCreatedAtDesc(pageable, startAndEndDates[0], startAndEndDates[1]);
+//        }
+//
+//        if (nickname != null && title == null && start == null) { //담장자 닉네임 검색
+//            return todoRepositoryImpl.findAllByNickname(pageable, nickname);
+//        }
+//
+//        if (title == null || nickname != null || start != null) {    //조건을 여러개 넣으면 에러처리
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "혼합 검색 혹은 아무런 것도 적지 않는 것은 불가능합니다.");
+//        }
 
-        if (start != null && title == null && nickname == null) {    //생성일 범위 검색
-            LocalDateTime[] startAndEndDates = validateStartAndEndDates(start, end);
-            return todoRepositoryImpl.findAllByCreatedAtDesc(pageable, startAndEndDates[0], startAndEndDates[1]);
-        }
-
-        if (nickname != null && title == null && start == null) { //담장자 닉네임 검색
-            return todoRepositoryImpl.findAllByNickname(pageable, nickname);
-        }
-
-        if (title == null || nickname != null || start != null) {    //조건을 여러개 넣으면 에러처리
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "혼합 검색 혹은 아무런 것도 적지 않는 것은 불가능합니다.");
-        }
-
-        return todoRepositoryImpl.findAllByTitle(pageable, title);  //제목검색
+        return todoRepositoryImpl.findAllByTitle(pageable, title, start, end, nickname);  //제목검색
     }
 }

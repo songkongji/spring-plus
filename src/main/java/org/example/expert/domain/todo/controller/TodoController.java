@@ -47,7 +47,7 @@ public class TodoController {
     public ResponseEntity<Page<TodoQueryDSLDTO>> getTodosV2(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam (required = false) String title,
+            @RequestParam String title,
             @RequestParam (required = false) String start,
             @RequestParam (required = false) String end,
             @RequestParam (required = false) String nickname
